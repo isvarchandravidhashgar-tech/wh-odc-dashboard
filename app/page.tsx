@@ -1,35 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UploadCard from "@/components/UploadCard";
 import { createWorkingFile } from "@/lib/createWorkingFile";
 import { downloadCSV } from "@/lib/downloadCSV";
 import { processDashboard } from "@/lib/processDashboard";
+import { createSummaryReport } from "@/lib/createSummaryReport";
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend
-} from "recharts";
+
 
 
 export default function Home() {
 
-  const [baseData, setBaseData] = useState<any[]>([]);
-  const [mappingData, setMappingData] = useState<any[]>([]);
-  const [manifestData, setManifestData] = useState<any[]>([]);
-  const [dashboard, setDashboard] = useState<any>(null);
-  const [workingData, setWorkingData] = useState<any[]>([]);
+const [baseData, setBaseData] = useState<any[]>([]);
+const [mappingData, setMappingData] = useState<any[]>([]);
+const [manifestData, setManifestData] = useState<any[]>([]);
+const [dashboard, setDashboard] = useState<any>(null);
+const [workingData, setWorkingData] = useState<any[]>([]);
 
+const [selectedRemarks, setSelectedRemarks] = useState<string[]>([]);
+const [selectedManifest, setSelectedManifest] = useState<string[]>([]);
+const [selectedClient, setSelectedClient] = useState<string[]>([]);
 
+const [summaryReport, setSummaryReport] = useState<any[]>([]);
 
-  const handleFileLoaded = (
-    fileType: string,
-    data: any[],
-    fileName: string
-  ) => {
+const remarkOptions = [...new Set(workingData.map(row => row.Consol_Ops_Remarks).filter(Boolean))];
+
+const manifestOptions = [...new Set(workingData.map(row => row.Manifested_ODC_1).filter(Boolean))];
+
+const clientOptions = [...new Set(workingData.map(row => row.client).filter(Boolean))];
+
+const handleFileLoaded = (
+  fileType: string,
+  data: any[],
+  fileName: string
+) => {
 
     console.log(fileType, fileName, data.length);
 
@@ -79,6 +84,14 @@ setWorkingData(generatedData);
 
 
     setDashboard(dashboardData);
+    const summary = createSummaryReport(
+  generatedData,
+  selectedRemarks,
+  selectedManifest,
+  selectedClient
+);
+
+setSummaryReport(summary);
 
 
 
@@ -269,6 +282,212 @@ className="bg-green-600 text-white px-8 py-4 rounded-xl text-lg hover:bg-green-7
             <h2 className="text-2xl font-bold mb-5">
               Dashboard Summary
             </h2>
+            <div className="bg-white rounded-xl shadow p-6 mb-8">
+
+  <h3 className="text-lg font-bold mb-5">
+    Dashboard Summary
+  </h3>
+
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+    <div>
+      <label className="block text-sm font-medium mb-2">
+        Remarks
+      </label>
+
+      <select
+  className="w-full border rounded-lg p-2"
+  value={selectedRemarks[0] || ""}
+  onChange={(e) => {
+    const value = e.target.value;
+
+    const remarks = value ? [value] : [];
+
+    setSelectedRemarks(remarks);
+
+    setSummaryReport(
+      createSummaryReport(
+        workingData,
+        remarks,
+        selectedManifest,
+        selectedClient
+      )
+    );
+  }}
+>
+  <option value="">All Remarks</option>
+
+  {remarkOptions.map((item) => (
+    <option key={item} value={item}>
+      {item}
+    </option>
+  ))}
+</select>
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium mb-2">
+        Manifest
+      </label>
+
+      <select
+  className="w-full border rounded-lg p-2"
+  value={selectedManifest[0] || ""}
+  onChange={(e) => {
+    const value = e.target.value;
+
+    const manifest = value ? [value] : [];
+
+    setSelectedManifest(manifest);
+
+    setSummaryReport(
+      createSummaryReport(
+        workingData,
+        selectedRemarks,
+        manifest,
+        selectedClient
+      )
+    );
+  }}
+>
+  <option value="">All Manifest</option>
+
+  {manifestOptions.map((item) => (
+    <option key={item} value={item}>
+      {item}
+    </option>
+  ))}
+</select>
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium mb-2">
+        Client
+      </label>
+
+      <select
+  className="w-full border rounded-lg p-2"
+  value={selectedClient[0] || ""}
+  onChange={(e) => {
+    const value = e.target.value;
+
+    const client = value ? [value] : [];
+
+    setSelectedClient(client);
+
+    setSummaryReport(
+      createSummaryReport(
+        workingData,
+        selectedRemarks,
+        selectedManifest,
+        client
+      )
+    );
+  }}
+>
+  <option value="">All Client</option>
+
+  {clientOptions.map((item) => (
+    <option key={item} value={item}>
+      {item}
+    </option>
+  ))}
+</select>
+    </div>
+
+  </div>
+
+  <div className="overflow-x-auto">
+
+    <table className="w-full border text-sm">
+
+      <thead className="bg-gray-100">
+
+        <tr>
+          <th className="border p-2">Lane</th>
+          <th className="border p-2">Dock Cutoff</th>
+          <th className="border p-2">Shipment</th>
+          <th className="border p-2">% of Total</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        {summaryReport.map((row, index) => (
+
+          <tr key={index}>
+
+            <td className="border p-2">{row.lane}</td>
+
+            <td className="border p-2">{row.cutoff}</td>
+
+            <td className="border p-2 text-center">
+              {row.shipment}
+            </td>
+
+            <td className="border p-2 text-center">
+              {row.percent}
+            </td>
+
+          </tr>
+
+        ))}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+            
+<div className="bg-white rounded-lg shadow p-4 mb-8">
+
+<div className="overflow-auto max-h-[450px]">
+
+<table className="w-full text-xs border">
+
+<thead className="bg-gray-100 sticky top-0">
+
+<tr>
+
+<th className="border p-2">
+  Lane
+</th>
+
+<th className="border p-2">
+  Dock Cutoff
+</th>
+
+<th className="border p-2">
+Count
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{summaryReport.map((row, index) => (
+  <tr key={index}>
+    <td className="border p-2">{row.lane}</td>
+    <td className="border p-2">{row.cutoff}</td>
+    <td className="border p-2 text-center">{row.shipment}</td>
+    <td className="border p-2 text-center">{row.percent}</td>
+  </tr>
+))}
+
+
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
 
 
 
@@ -541,72 +760,7 @@ className="bg-green-600 text-white px-8 py-4 rounded-xl text-lg hover:bg-green-7
   </div>
 
 </div>
-            <div className="bg-white rounded-xl shadow p-6 mt-10">
-
-
-              <h2 className="text-xl font-bold mb-5">
-                Remark Wise Performance
-              </h2>
-
-
-
-
-              <PieChart width={500} height={350}>
-
-
-                <Pie
-
-                  data={
-                    Object.entries(
-                      dashboard.remarkSummary
-                    ).map(([name,value])=>({
-
-                      name,
-                      value
-
-                    }))
-                  }
-
-                  dataKey="value"
-
-                  nameKey="name"
-
-                  cx="50%"
-
-                  cy="50%"
-
-                  outerRadius={120}
-
-                  label
-
-                >
-
-
-                  {
-                    Object.entries(
-                      dashboard.remarkSummary
-                    ).map((item,index)=>(
-
-                      <Cell key={index}/>
-
-                    ))
-                  }
-
-
-                </Pie>
-
-
-
-                <Tooltip />
-
-                <Legend />
-
-
-              </PieChart>
-
-
-
-            </div>
+            
 
 
 

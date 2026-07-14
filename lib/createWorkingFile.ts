@@ -250,9 +250,22 @@ Pickup_Remarks: (() => {
   // Compare
   const manifestTime = new Date(manifested);
 
-  return manifestTime <= sameDay
+const remark =
+  manifestTime <= sameDay
     ? "Manifested ON_Time (Dock Miss)"
     : "Delay Manifested";
+
+// Dock Cutoff check
+const dockCutoff = String(mapping?.["STD"] || "").trim();
+
+if (
+  (remark === "Manifested ON_Time (Dock Miss)" ||
+    remark === "Delay Manifested") &&
+  (dockCutoff === "05:00 AM" || dockCutoff === "5:00 AM")
+) {
+  return "Breach by design";
+}
+return remark;
 })(),
 "Zonal+National_Remarks Day 1": (() => {
   const manifested = row["manifest_creation_bagging_dc"];
@@ -304,9 +317,22 @@ Pickup_Remarks: (() => {
 
   const manifestTime = new Date(manifested);
 
-  return manifestTime <= nextDay
+const remark =
+  manifestTime <= nextDay
     ? "Manifested ON_Time (Dock Miss)"
     : "Delay Manifested";
+
+const dockCutoff = String(mapping?.["STD"] || "").trim();
+
+if (
+  (remark === "Manifested ON_Time (Dock Miss)" ||
+    remark === "Delay Manifested") &&
+  (dockCutoff === "05:00 AM" || dockCutoff === "5:00 AM")
+) {
+  return "Breach by design";
+}
+
+return remark;
 })(),
 Manifested_ODC_1:
   manifestRemarkLookup.get(row["awb_number"]) || "NCR Bamnoli DC",
@@ -363,9 +389,23 @@ Consol_Ops_Remarks: (() => {
 
   const manifestTime = new Date(manifested);
 
-  return manifestTime <= picked
+const remark =
+  manifestTime <= picked
     ? "Manifested ON_Time (Dock Miss)"
     : "Delay Manifested";
+
+const dockCutoff = (mapping?.["STD"] || "").trim();
+console.log("Dock Cutoff:", dockCutoff);
+
+if (
+  (remark === "Manifested ON_Time (Dock Miss)" ||
+    remark === "Delay Manifested") &&
+  (dockCutoff === "05:00 AM" || dockCutoff === "5:00 AM")
+) {
+  return "Breach by design";
+}
+
+return remark;
 })(),
 Remarks1: "",
     };

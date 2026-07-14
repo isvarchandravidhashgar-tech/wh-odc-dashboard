@@ -2,8 +2,10 @@ const REMARKS = [
   "Connected ON time",
   "Delay Manifested",
   "Manifested ON_Time (Dock Miss)",
+  "Breach by design",
   "Not Manifested",
 ];
+
 
 const MANIFESTS = [
   "NCR Bamnoli DC",
@@ -12,6 +14,7 @@ const MANIFESTS = [
 ];
 
 export function processDashboard(workingData: any[]) {
+  
 
   // ---------------- Remark Summary ----------------
 
@@ -93,24 +96,21 @@ export function processDashboard(workingData: any[]) {
   // ---------------- Return ----------------
 
   return {
+  totalRows: workingData.length,
 
-    totalRows: workingData.length,
+  connectedOnTime: remarkSummary["Connected ON time"],
 
-    connectedOnTime: remarkSummary["Connected ON time"],
+  delayManifested: remarkSummary["Delay Manifested"],
 
-    delayManifested: remarkSummary["Delay Manifested"],
+  manifestedOnTime: remarkSummary["Manifested ON_Time (Dock Miss)"],
 
-    manifestedOnTime: remarkSummary["Manifested ON_Time (Dock Miss)"],
+  breachByDesign: remarkSummary["Breach by design"],
 
-    notManifested: remarkSummary["Not Manifested"],
+  notManifested: remarkSummary["Not Manifested"],
 
-    remarkSummary,
-
-    manifestSummary,
-
-    countSummary,
-
-    percentageSummary,
-
-  };
+  remarkSummary,
+  manifestSummary,
+  countSummary,
+  percentageSummary,
+};
 }

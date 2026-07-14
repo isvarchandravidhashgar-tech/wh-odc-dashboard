@@ -70,26 +70,36 @@ const handleFileLoaded = (
 
 
 
-    const generatedData = createWorkingFile(
+    console.time("1. createWorkingFile");
+
+const generatedData = createWorkingFile(
   baseData,
   mappingData,
   manifestData
 );
 
+console.timeEnd("1. createWorkingFile");
+
 setWorkingData(generatedData);
 
+console.time("2. processDashboard");
 
+const dashboardData = processDashboard(generatedData);
 
-    const dashboardData = processDashboard(generatedData);
+console.timeEnd("2. processDashboard");
 
+setDashboard(dashboardData);
 
-    setDashboard(dashboardData);
-    const summary = createSummaryReport(
+console.time("3. createSummaryReport");
+
+const summary = createSummaryReport(
   generatedData,
   selectedRemarks,
   selectedManifest,
   selectedClient
 );
+
+console.timeEnd("3. createSummaryReport");
 
 setSummaryReport(summary);
 
@@ -102,14 +112,33 @@ setSummaryReport(summary);
 
   };
 const downloadWorkingFile = () => {
-
   if (workingData.length === 0) {
     alert("Please Generate Dashboard First");
     return;
   }
 
   downloadCSV(workingData, "WH_ODC_Working_File.csv");
+};
 
+const downloadGrandTotal = () => {
+  const filteredData = workingData.filter((row: any) => {
+
+    const remarkMatch =
+      selectedRemarks.length === 0 ||
+      selectedRemarks.includes(row.Consol_Ops_Remarks);
+
+    const manifestMatch =
+      selectedManifest.length === 0 ||
+      selectedManifest.includes(row.Manifested_ODC_1);
+
+    const clientMatch =
+      selectedClient.length === 0 ||
+      selectedClient.includes(row.client);
+
+    return remarkMatch && manifestMatch && clientMatch;
+  });
+
+  downloadCSV(filteredData, "Grand_Total.csv");
 };
 
 
@@ -433,7 +462,25 @@ className="bg-green-600 text-white px-8 py-4 rounded-xl text-lg hover:bg-green-7
           </tr>
 
         ))}
+<tr
+  className="bg-gray-200 font-bold cursor-pointer hover:bg-blue-200"
+  onClick={downloadGrandTotal}
+>
+  <td className="border p-2" colSpan={2}>
+    Grand Total
+  </td>
 
+  <td className="border p-2 text-center">
+    {summaryReport.reduce(
+      (sum, row) => sum + Number(row.shipment || 0),
+      0
+    )}
+  </td>
+
+  <td className="border p-2 text-center">
+    100%
+  </td>
+</tr>
       </tbody>
 
     </table>
@@ -442,52 +489,7 @@ className="bg-green-600 text-white px-8 py-4 rounded-xl text-lg hover:bg-green-7
 
 </div>
             
-<div className="bg-white rounded-lg shadow p-4 mb-8">
 
-<div className="overflow-auto max-h-[450px]">
-
-<table className="w-full text-xs border">
-
-<thead className="bg-gray-100 sticky top-0">
-
-<tr>
-
-<th className="border p-2">
-  Lane
-</th>
-
-<th className="border p-2">
-  Dock Cutoff
-</th>
-
-<th className="border p-2">
-Count
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-{summaryReport.map((row, index) => (
-  <tr key={index}>
-    <td className="border p-2">{row.lane}</td>
-    <td className="border p-2">{row.cutoff}</td>
-    <td className="border p-2 text-center">{row.shipment}</td>
-    <td className="border p-2 text-center">{row.percent}</td>
-  </tr>
-))}
-
-
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
 
 
 

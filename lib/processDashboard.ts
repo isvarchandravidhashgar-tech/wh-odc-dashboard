@@ -1,7 +1,7 @@
 const REMARKS = [
   "Connected ON time",
   "Delay Manifested",
-  "Manifested ON_Time",
+  "Manifested ON_Time (Dock Miss)",
   "Not Manifested",
 ];
 
@@ -100,7 +100,7 @@ export function processDashboard(workingData: any[]) {
 
     delayManifested: remarkSummary["Delay Manifested"],
 
-    manifestedOnTime: remarkSummary["Manifested ON_Time"],
+    manifestedOnTime: remarkSummary["Manifested ON_Time (Dock Miss)"],
 
     notManifested: remarkSummary["Not Manifested"],
 

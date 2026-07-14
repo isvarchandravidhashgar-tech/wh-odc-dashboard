@@ -251,7 +251,7 @@ Pickup_Remarks: (() => {
   const manifestTime = new Date(manifested);
 
   return manifestTime <= sameDay
-    ? "Manifested ON_Time"
+    ? "Manifested ON_Time (Dock Miss)"
     : "Delay Manifested";
 })(),
 "Zonal+National_Remarks Day 1": (() => {
@@ -305,7 +305,7 @@ Pickup_Remarks: (() => {
   const manifestTime = new Date(manifested);
 
   return manifestTime <= nextDay
-    ? "Manifested ON_Time"
+    ? "Manifested ON_Time (Dock Miss)"
     : "Delay Manifested";
 })(),
 Manifested_ODC_1:
@@ -364,7 +364,7 @@ Consol_Ops_Remarks: (() => {
   const manifestTime = new Date(manifested);
 
   return manifestTime <= picked
-    ? "Manifested ON_Time"
+    ? "Manifested ON_Time (Dock Miss)"
     : "Delay Manifested";
 })(),
 Remarks1: "",
